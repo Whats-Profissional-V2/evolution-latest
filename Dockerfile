@@ -15,6 +15,13 @@ COPY ./tsup.config.ts ./
 
 RUN npm ci --silent
 
+# Ack das stanzas <status>: sem isso o WhatsApp derruba o stream e a
+# instancia para de receber mensagens mesmo aparecendo como conectada.
+# O --check aborta o build se o patch gerar JS invalido.
+COPY ./patches ./patches
+RUN node ./patches/patch-status-ack.cjs /evolution/node_modules/baileys \
+    && node --check /evolution/node_modules/baileys/lib/Socket/messages-recv.js
+
 COPY ./src ./src
 COPY ./public ./public
 COPY ./prisma ./prisma
